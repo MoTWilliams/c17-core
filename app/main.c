@@ -29,6 +29,8 @@ int main(int argc, char* argv[]) {
                 debug_testArgs(mode, argv[1]);
         #endif
 
+        if (mode == CAPTURE_INTERACTIVE) do {} while (0);
+
         /* This only fires if everything else works */
         printf(FG_BLU "Goodbye!\n\n" RESET);
 
