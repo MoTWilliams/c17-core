@@ -1,51 +1,78 @@
+# Use GCC compiler
 CC := gcc
-DEBUG ?= 0
 
-# Include all subdirectories of src/ and test/
-INCLUDE := $(sort $(shell find src test -type d))	# Build the list
-CPPFLAGS += $(addprefix -I, $(INCLUDE)) -MMD -MP	# Turn into -I flags
+# Set default value of the debug flag
+DEFAULT ?= 0
+BUILDTYPE := $(if $(filter 1 true yes on,$(DEBUG)),debug,release)
 
-# Enforce C89 standard, enable all common warnings, debug flag
-CFLAGS += -std=c89 -pedantic -Wall -Wextra -g -DDEBUG=$(DEBUG)
+# Enforce strict C89 standard, enable all common warnings, and set debug flag
+CFLAGS += -std=c89 -pedantic -Wall -Wextra -g -DDEBUG=$(DEBUG) -MMD -MP
 
-# Link flags for including libraries later on
-LDFLAGS +=
-LDLIBS +=
+# Construct build trees
+BUILDDIR := build
+OBJDIR := $(BUILDDIR)/$(BUILDTYPE)/obj
+DEPDIR := $(BUILDDIR)/$(BUILDTYPE)/dep
 
-# LIBRARY: Core source files--used for all builds
-SRC := $(shell find src -name '*.c')
-CORE_OBJ := $(SRC:.c=.o)	# Object files from .c files
-CORE_DEP := $(OBJ:.o=.d)	# Dependency lists from object files
+bin:
+	@mkdir -p $@
+.PHONY: bin
 
-# Make object files for all .c files
-# OBJ := $(SRC:.c=.o)
+# --- ALL BUILDS ---
+INCLUDE := $(addprefix -iquote , $(sort $(shell find src -type d)))
+CPPFLAGS += $(INCLUDE)
 
-# Generate dependency lists
-# DEP := $(OBJ:.o=.d)
+SRC := $(sort $(shell find src -name '*.c'))
 
-# Generate object files (compile)
-%.o: %.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $< 
+CORE_OBJDIR := $(OBJDIR)/core
+CORE_OBJ := $(patsubst src/%.c, $(CORE_OBJDIR)/%.o, $(SRC))
 
-# Create the binary (link)
-mash: $(CORE_OBJ)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS) 
+CORE_DEPDIR := $(DEPDIR)/core
+CORE_DEP := $(patsubst $(CORE_OBJDIR)/%.o, $(CORE_DEPDIR)/%.d, $(CORE_OBJ))
 
-.PHONY: clean valgrind
+$(CORE_OBJDIR)/%.o: src/%.c
+	@mkdir -p $(dir $@) \
+		$(dir $(patsubst $(CORE_OBJDIR)/%.o, $(CORE_DEPDIR)/%.d, $@))
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		-MF $(patsubst $(CORE_OBJDIR)/%.o, $(CORE_DEPDIR)/%.d, $@) -c -o $@ $<
 
-# Clean directive
+# --- NORMAL BUILD ---
+APP_INC := $(addprefix -iquote , $(sort $(shell find app -type d)))
+
+APP := $(sort $(shell find app -name '*.c'))
+
+APP_OBJDIR := $(OBJDIR)/app
+APP_OBJ := $(patsubst app/%.c, $(APP_OBJDIR)/%.o, $(APP))
+
+APP_DEPDIR := $(DEPDIR)/app
+APP_DEP := $(patsubst $(APP_OBJDIR)/%.o, $(APP_DEPDIR)/%.d, $(APP_OBJ))
+
+$(APP_OBJDIR)/%.o: CPPFLAGS += $(APP_INC)
+
+$(APP_OBJDIR)/%.o: app/%.c
+	@mkdir -p $(dir $@) \
+		$(dir $(patsubst $(APP_OBJDIR)/%.o, $(APP_DEPDIR)/%.d, $@))
+	$(CC) $(CPPFLAGS) $(CFLAGS) \
+		-MF $(patsubst $(APP_OBJDIR)/%.o, $(APP_DEPDIR)/%.d, $@) -c -o $@ $<
+
+# Create the executable
+mash: bin/mash
+.PHONY: mash
+
+bin/mash: $(CORE_OBJ) $(APP_OBJ) | bin
+	$(CC) -o $@ $^
+
+# Include generated dependencies
+-include $(CORE_DEP) $(APP_DEP)
+
+.PHONY: clean release debug
+
 clean:
-	$(RM) $(CORE_OBJ) $(CORE_DEP) mash
+	$(RM) -r $(BUILDDIR) bin
+
+release:
+	$(MAKE) DEBUG=0 mash
+	./bin/mash
 
 debug:
-	$(MAKE) clean
 	$(MAKE) DEBUG=1 mash
-
-# Run the shell in Valgrind
-valgrind: mash
-	valgrind --leak-check=full \
-			 --track-origins=yes \
-			 --show-leak-kinds=all \
-			 ./mash
-
--include $(CORE_DEP)
+	./bin/mash
