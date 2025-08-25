@@ -10,7 +10,8 @@ typedef enum {
         ERRNO_UNKNOWN,
         ERRNO_SYNTAX,
         ERRNO_IMPOSSIBLE_VALUE,
-        ERRNO_OUT_OF_MEMORY
+        ERRNO_OUT_OF_MEMORY,
+        ERRNO_FORK
 } ErrNo;
 
 /**
