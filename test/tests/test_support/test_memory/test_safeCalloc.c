@@ -282,15 +282,23 @@ static TestResult test_safeCalloc_largeAlloc_FATAL(void) {
 static OperationResult safeCalloc_largeAlloc_OPERATION(
                 ErrorFatality isFailureFatal) {
         char* ptr = NULL;
+        struct rlimit lim;
+
+        /* Portion of the available memory */
+        int part;
+        #ifdef RUNNING_ON_VALGRIND
+                part = 4;
+        #else
+                part = 2;
+        #endif
 
         /* Set a smaller limit (8 MB) so this test doesn't stress the system */
-        struct rlimit lim;
         lim.rlim_cur = SIZE_FAKE_OOM;
         lim.rlim_max = SIZE_FAKE_OOM;
         if (setrlimit(RLIMIT_AS, &lim) != 0) return OP_FAILURE;
 
         /* ALlocate one element of relatively very large but valid size */
-        ptr = safeCalloc(1, SIZE_FAKE_OOM/2, isFailureFatal);
+        ptr = safeCalloc(1, SIZE_FAKE_OOM/part, isFailureFatal);
         if (!ptr) {
                 return OP_FAILURE;
         }
