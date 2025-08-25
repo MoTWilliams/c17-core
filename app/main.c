@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
         }
 
         /* Welcome message */
-        printf(FG_BLU "\nWelcome to MASh!\n\n" RESET);
+        printf(FG_BLU "\nWelcome to " BOLD "MASh!" UNBOLD "\n\n" RESET);
 
         #if DEBUG
                 debug_testArgs(mode, argv[1]);
