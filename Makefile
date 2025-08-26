@@ -3,13 +3,16 @@ CC := gcc
 
 # Set default value of the debug flag
 DEBUG ?= 0
-BUILDTYPE := $(if $(filter 1 true yes on,$(DEBUG)),debug,release)
+# BUILDTYPE := $(if $(filter 1 true yes on,$(DEBUG)),debug,release)
 
-# Make 'mash' the default for plain `make` command
-.DEFAULT_GOAL := mash
+# Make 'ckit' the default for plain `make` command
+.DEFAULT_GOAL := ckit
 
-# Enforce strict C89 standard, enable all common warnings, and set debug flag
-CFLAGS += -std=c89 -pedantic -Wall -Wextra -g -DDEBUG=$(DEBUG) -MMD -MP
+# Enforce strict (pedantic) C99 standard
+# Enable common and extra warnings
+# Use descriptive debug information (-g) and set DEBUG macro from Makefile
+# Generate dependency lists and add phony rules for headers
+CFLAGS += -std=c99 -pedantic -Wall -Wextra -g -DDEBUG=$(DEBUG) -MMD -MP
 
 # Construct build trees
 BUILDDIR := build
@@ -55,10 +58,10 @@ $(APP_OBJDIR)/%.o: app/%.c
 		-MF $(APP_DEPDIR)/$*.d -c -o $@ $<
 
 # Create the executable
-BIN := bin/mash
+BIN := bin/ckit
 
-mash: $(BIN)
-.PHONY: mash
+ckit: $(BIN)
+.PHONY: ckit
 
 $(BIN): $(CORE_OBJ) $(APP_OBJ) | bin/
 	$(CC) -o $@ $^
@@ -68,7 +71,7 @@ TEST_INC := $(addprefix -iquote , $(sort $(shell find test -type d)))
 
 TEST := $(sort $(shell find test -name '*.c'))
 LIB_OBJ := $(CORE_OBJ)
-LIB_ARCHIVE := $(BUILDDIR)/$(BUILDTYPE)/libmash.a
+LIB_ARCHIVE := $(BUILDDIR)/$(BUILDTYPE)/libckit.a
 
 $(LIB_ARCHIVE): $(LIB_OBJ) | $(dir $(LIB_ARCHIVE))
 	ar rcs $@ $^
@@ -86,7 +89,7 @@ $(TEST_OBJDIR)/%.o: test/%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) \
 		-MF $(TEST_DEPDIR)/$*.d -c -o $@ $<
 
-TEST_BIN := bin/mash_test
+TEST_BIN := bin/ckit_test
 
 $(TEST_BIN): $(TEST_OBJ) $(LIB_ARCHIVE) | bin/
 	$(CC) -o $@ $^
@@ -103,12 +106,12 @@ run: $(BIN)
 	./$(BIN)
 
 release:
-	$(MAKE) DEBUG=0 mash
+	$(MAKE) BUILDTYPE=release DEBUG=0 ckit
 	./$(BIN)
 
 debug:
-	$(MAKE) DEBUG=1 mash
-	./$(BIN)
+	$(MAKE) BUILDTYPE=debug DEBUG=1 ckit
+	./$(BIN) one two three
 
 valgrind: $(BIN)
 	valgrind --leak-check=full \
