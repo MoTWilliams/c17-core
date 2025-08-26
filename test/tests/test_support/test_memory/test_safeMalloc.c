@@ -5,6 +5,7 @@
 #include "test_util.h"
 #include <sys/resource.h>
 #include <string.h>
+#include <stdio.h>
 
 /* ----- HELPERS ----- */
 
@@ -55,64 +56,66 @@ int test_safeMalloc(int* totTests, int* grpTests) {
         /* Nonfatal failure mode */
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_OOM_NONFATAL(),
-                "test_safeMalloc_OOM_NONFATAL() should return NULL"
+                "test_safeMalloc_OOM_NONFATAL(); safeMalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_sizeTooLarge_NONFATAL(),
-                "test_safeMalloc_sizeTooLarge_NONFATAL() should return NULL"
+                "test_safeMalloc_sizeTooLarge_NONFATAL(); safeMalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_zeroAlloc_NONFATAL(),
-                "test_safeMalloc_zeroAlloc_NONFATAL() should return NULL"
+                "test_safeMalloc_zeroAlloc_NONFATAL(); safeMalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_normalAlloc_NONFATAL(),
-                "test_safeMalloc_normalAlloc_NONFATAL() should return non-NULL"
+                "test_safeMalloc_normalAlloc_NONFATAL(); safeMalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_largeAlloc_NONFATAL(),
-                "test_safeMalloc_largeAlloc_NONFATAL() should return non-NULL"
+                "test_safeMalloc_largeAlloc_NONFATAL(); safeMalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_memUsable_NONFATAL(),
-                "test_safeMalloc_memUsable_NONFATAL() == TEST_PASS"
+                "test_safeMalloc_memUsable_NONFATAL(); all ptr[i] write/read"
         );
 
         /* Fatal failure mode */
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_OOM_FATAL(), 
-                "test_safeMalloc_OOM_FATAL() should abort"
+                "test_safeMalloc_OOM_FATAL(); safeMalloc() abort"
         );
 
         grpPasses += TEST_ASSERT(
-                (Bool)test_safeMalloc_sizeTooLarge_FATAL(), "test_safeMalloc_sizeTooLarge_FATAL() should abort"
+                (Bool)test_safeMalloc_sizeTooLarge_FATAL(), "test_safeMalloc_sizeTooLarge_FATAL(); safeMalloc() abort"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_zeroAlloc_FATAL(),
-                "test_safeMalloc_zeroAlloc_FATAL() should return NULL"
+                "test_safeMalloc_zeroAlloc_FATAL(); safeMalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_normalAlloc_FATAL(),
-                "test_safeMalloc_normalAlloc_FATAL() should return non-NULL"
+                "test_safeMalloc_normalAlloc_FATAL(); safeMalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_largeAlloc_FATAL(),
-                "test_safeMalloc_largeAlloc_NONFATAL() should return non-NULL"
+                "test_safeMalloc_largeAlloc_NONFATAL(); safeMalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeMalloc_memUsable_FATAL(),
-                "test_safeMalloc_memUsable_FATAL() == TEST_PASS"
+                "test_safeMalloc_memUsable_FATAL(); safeMalloc() abort"
         );
 
+        printf("\n");
+        fflush(stdout);
         return grpPasses;
 }
 
@@ -152,7 +155,7 @@ static OperationResult safeMalloc_OOM_OPERATION(ErrorFatality isFailureFatal) {
                 if (!ptr) return OP_FAILURE;
         }
 
-        /* If we get this far, the operation failed to fail */
+        /* If we get this far, the operation succeeded */
         safeFree(ptr);
         return OP_SUCCESS;
 }

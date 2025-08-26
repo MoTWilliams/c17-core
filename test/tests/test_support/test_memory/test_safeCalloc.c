@@ -4,6 +4,7 @@
 #include "test_assert.h"
 #include "test_util.h"
 #include <sys/resource.h>
+#include <stdio.h>
 
 /* ----- HELPERS ----- */
 
@@ -54,64 +55,66 @@ int test_safeCalloc(int* totTests, int* grpTests) {
         /* Nonfatal failure mode */
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_OOM_NONFATAL(),
-                "test_safeCalloc_OOM_NONFATAL() should return NULL"
+                "test_safeCalloc_OOM_NONFATAL(); safeCalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_sizeTooLarge_NONFATAL(),
-                "test_safeCalloc_sizeTooLarge_NONFATAL() should return NULL"
+                "test_safeCalloc_sizeTooLarge_NONFATAL(); safeCalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_zeroAlloc_NONFATAL(),
-                "test_safeCalloc_zeroAlloc_NONFATAL() should return NULL"
+                "test_safeCalloc_zeroAlloc_NONFATAL(); safeCalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_normalAlloc_NONFATAL(),
-                "test_safeCalloc_normalAlloc_NONFATAL() should return non-NULL"
+                "test_safeCalloc_normalAlloc_NONFATAL(); safeCalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_largeAlloc_NONFATAL(),
-                "test_safeCalloc_largeAlloc_NONFATAL() should return non-NULL"
+                "test_safeCalloc_largeAlloc_NONFATAL(); safeCalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_nullInit_NONFATAL(),
-                "test_safeCalloc_nullInit_NONFATAL() should zero all elements"
+                "test_safeCalloc_nullInit_NONFATAL(); all ptr[i] == NULL"
         );
 
         /* Fatal failure mode */
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_OOM_FATAL(), 
-                "test_safeCalloc_OOM_FATAL() should abort"
+                "test_safeCalloc_OOM_FATAL(); safeCalloc() abort"
         );
 
         grpPasses += TEST_ASSERT(
-                (Bool)test_safeCalloc_sizeTooLarge_FATAL(), "test_safeCalloc_sizeTooLarge_FATAL() should abort"
+                (Bool)test_safeCalloc_sizeTooLarge_FATAL(), "test_safeCalloc_sizeTooLarge_FATAL(); safeCalloc() abort"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_zeroAlloc_FATAL(),
-                "test_safeCalloc_zeroAlloc_FATAL() should return NULL"
+                "test_safeCalloc_zeroAlloc_FATAL(); safeCalloc() == NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_normalAlloc_FATAL(),
-                "test_safeCalloc_normalAlloc_FATAL() should return non-NULL"
+                "test_safeCalloc_normalAlloc_FATAL(); safeCalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_largeAlloc_FATAL(),
-                "test_safeCalloc_largeAlloc_NONFATAL() should return non-NULL"
+                "test_safeCalloc_largeAlloc_NONFATAL(); safeCalloc() != NULL"
         );
 
         grpPasses += TEST_ASSERT(
                 (Bool)test_safeCalloc_nullInit_FATAL(),
-                "test_safeCalloc_nullInit_FATAL() should zero all elements"
+                "test_safeCalloc_nullInit_FATAL(); all ptr[i] == NULL"
         );
 
+        printf("\n");
+        fflush(stdout);
         return grpPasses;
 }
 

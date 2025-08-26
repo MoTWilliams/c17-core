@@ -36,7 +36,7 @@ int main(void) {
         /* --- RUN UNIT TESTS --- */
 
         /* Test memory handling module*/
-        printf("Memory tests:\n");
+        printf("----------MEMORY TESTS----------\n\n");
         fflush(stdout);
         grpNames[GRP_MEM] = "memory";
         scores[GRP_MEM][PASSES] = test_mem(&totTests, &grpTests);
