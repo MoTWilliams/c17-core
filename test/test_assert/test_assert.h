@@ -4,15 +4,11 @@
 #include "booleanValues.h"
 
 typedef enum {
-        TEST_PASS,
-        TEST_FAIL
-} TestRestult;
+        TEST_FAIL,
+        TEST_PASS
+} TestResult;
 
-typedef enum {
-        GROUP_MEM
-} TestGroup;
-
-TestRestult test_assert(
+TestResult test_assert(
         Bool condition, const char* msg, const char* filePath,
         int lineNo, int* totTests, int* grpTests
 );

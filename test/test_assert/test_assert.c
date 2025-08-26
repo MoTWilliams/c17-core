@@ -3,7 +3,7 @@
 #include "textStylesAndColors.h"
 #include <stdio.h>
 
-TestRestult test_assert(
+TestResult test_assert(
                 Bool condition, const char* msg, const char* filePath,
                 int lineNo, int* totTests, int* grpTests) {
         /* Add 1 to the total and group test counts */
@@ -23,5 +23,6 @@ TestRestult test_assert(
         /* Otherwise, print PASS message in green if the test passes */
         printf(FG_GRN "[" BOLD "PASS" UNBOLD "]-----");
         printf("%s in FILE: \"%s\"" RESET "\n", msg, filePath);
+        fflush(stdout);
         return TEST_PASS;
 }
