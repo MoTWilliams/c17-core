@@ -43,7 +43,6 @@ static const char* err_getErrDescription(int err) {
         static const char* tbl[] = {
                 [ERRNO_SYNTAX - 1000] = "There is a problem with your input",
                 [ERRNO_OVERFLOW - 1000] = "Request too large"
-
         };
 
         // Don't fall off the table and avoid NULL slots
