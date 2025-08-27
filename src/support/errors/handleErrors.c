@@ -1,10 +1,23 @@
 #include "handleErrors.h"
 #include "textStylesAndColors.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
+
+// Parent's PID
+static pid_t prog_pid;
+
+void err_init(void) {
+        prog_pid = getpid();
+        #if DEBUG
+                printf("Parent PID = %d\n\n", prog_pid);
+        #endif
+}
 
 static const char* err_getErrName(int err);
 static const char* err_getErrDescription(int err);
+static bool err_amChildProcess(void);
 
 int err_reportError(
                 ErrorFatality isErrFatal, int err,
@@ -15,12 +28,13 @@ int err_reportError(
         fprintf(stderr, "%s" UNBOLD "]" RESET ": ", err_getErrName(err));
 
         // Print diagnostic information
-        fprintf(stderr, "FILE: %s; LINE: %d; IN %s, %s\n", 
+        fprintf(stderr, "FILE: %s; LINE: %d; IN %s(), %s\n", 
                 file, line, func, err_getErrDescription(err));
         
         // Exit on fatal error. Return errno for sys errors and 1 for custom
         int exitStatus = err < 256 ? err : 1;
-        if (isErrFatal) inChild ? _exit(exitStatus) : exit(exitStatus);
+        if (isErrFatal) err_amChildProcess() ?
+                _exit(exitStatus) : exit(exitStatus);
 
         return 0;
 }
@@ -50,4 +64,8 @@ static const char* err_getErrDescription(int err) {
         int index = err - 1000;
         if (index >= 0 && index < tblLen && tbl[index]) return tbl[index];
         return "Unknown error";
+}
+
+static bool err_amChildProcess(void) {
+        return getpid() != prog_pid;
 }

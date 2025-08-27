@@ -4,8 +4,11 @@
 #include <stdio.h>
 
 int main(int argc, char* argv[]) {
+        /* Capture parent PID for error handling */
+        err_init();
+        
         /* Welcome message */
-        printf(FG_BLU "c99 project starter kit" RESET "\n\n");
+        printf(FG_BLU "c17 project starter kit" RESET "\n\n");
 
         printf("%d args: [", argc);
         for (int i = 0; argv[i]; i++) {

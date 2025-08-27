@@ -3,8 +3,7 @@
 
 #include <errno.h>
 #include <stdbool.h>
-
-extern bool inChild;
+#include <sys/types.h>  // For pid_t
 
 typedef enum {
         ERR_NONFATAL,
@@ -30,8 +29,14 @@ enum Errors {
 };
 #undef X
 
+void err_init(void);
+
 int err_reportError(
         ErrorFatality isErrFatal, int err,
         const char* file, int line, const char* func);
+
+#define REPORT_ERR(isErrFatal, err) \
+        err_reportError(isErrFatal, err, __FILE__, __LINE__, __func__)
+
 
 #endif
