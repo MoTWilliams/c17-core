@@ -1,7 +1,7 @@
 #ifndef TEXT_STYLES_AND_COLORS_H
 #define TEXT_STYLES_AND_COLORS_H
 
-#if NO_COLORS   // Define no escape sequences 
+#if NO_COLOR   // Define no escape sequences 
         /* Turn off all styling */
         #define RESET ""
 
